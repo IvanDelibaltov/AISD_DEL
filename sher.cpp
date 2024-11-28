@@ -203,39 +203,50 @@ public:
 
     double length() const
     {
-        
         double total_length = 0.0;
+
         for (size_t i = 0; i < _number_points - 1; ++i)
         {
-            bool sher = _coords[i].x.real();
-            if (_coords[i+1].x == _coords[i].x)
+            if constexpr (is_arithmetic_v<T>) 
             {
-                total_length += abs(_coords[i+1].y - _coords[i].y);
+                if (_coords[i + 1].x == _coords[i].x)
+                {
+                    total_length += abs(_coords[i + 1].y - _coords[i].y);
+                }
+                else if (_coords[i + 1].y == _coords[i].y)
+                {
+                    total_length += abs(_coords[i + 1].x - _coords[i].x);
+                }
+                else
+                {
+                    total_length += sqrt(pow(_coords[i + 1].x - _coords[i].x, 2) + pow(_coords[i + 1].y - _coords[i].y, 2));
+                }
+            
             }
-            if (_coords[i+1].y == _coords[i].y)
+            else if constexpr (is_same_v<T, complex<typename T::value_type>>) 
             {
-                total_length += abs(_coords[i+1].x - _coords[i].x);
-            }
-            else
-            {
-                total_length += sqrt(pow(_coords[i+1].x - _coords[i].x, 2) + pow(_coords[i+1].y - _coords[i].y, 2));
+                
+                complex<T> p1(_coords[i].x, _coords[i].y);
+                complex<T> p2(_coords[i + 1].x, _coords[i + 1].y);
+
+                if (p1.x == p2.x)
+                {
+                    total_length += abs(p2.y - p1.y);
+                }
+                if else (p1.y == p2.y)
+                {
+                    total_length += abs(p2.x - p1.x);
+                }
+                else
+                {
+                    total_length += sqrt(pow(p1.x - p2.x) + pow(p1.y - p2.y));
+                }
             }
         }
+
         return total_length;
     }
-
-    double length_complex() const
-    {
-        double total_length = 0.0;
-        for (size_t i = 0; i < _number_points - 1; ++i)
-        {
-            complex<T> p1(_coords[i].x, _coords[i].y);
-            complex<T> p2(_coords[i + 1].x, _coords[i + 1].y);
-
-            total_length += std::abs(p2 - p1);  
-        }
-        return total_length;
-    }
+    
 
     friend ostream& operator<<(ostream& os, const Polyline& polyline)
     {
